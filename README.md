@@ -55,6 +55,10 @@ graph TD
 
 ### 1. Sistema de Percepción Visual Neuronal
 
+<p align="center">
+  <img src="./frontend/assets/images/Imagen1.png" alt="Demo1">
+</p>
+
 #### A. Arquitectura de Procesamiento Visual Profundo
 
 - **Redes Neuronales Convolucionales Jerárquicas**
@@ -78,6 +82,10 @@ graph TD
 
 ### 2. Motor de Síntesis de Voz Neural
 
+<p align="center">
+  <img src="./frontend/assets/images/imagen2.jpg" alt="Demo1">
+</p>
+
 #### A. Arquitectura Acústica Avanzada
 
 - **Modelado Espectral Neural**
@@ -100,6 +108,10 @@ graph TD
   - Reducción de artefactos mediante GAN condicional
 
 ### 3. Sistema de Procesamiento Lingüístico Neural
+
+<p align="center">
+  <img src="./frontend/assets/images/imagen3.png" alt="Demo1">
+</p>
 
 #### A. Arquitectura de Comprensión Profunda
 
