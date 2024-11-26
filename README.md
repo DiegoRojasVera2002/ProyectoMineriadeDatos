@@ -24,7 +24,7 @@ graph TD
 ### Módulo de Adquisición Documental
 
 <p align="center">
-  <img src="./assets/images/Demo1.png" alt="Demo1">
+  <img src="./frontend/assets/images/Demo1.png" alt="Demo1">
 </p>
 
 - Sistema de digitalización con preprocesamiento neuronal
@@ -34,7 +34,7 @@ graph TD
 ### Centro de Control y Análisis
 
 <p align="center">
-  <img src="./assets/images/Demo2.png" alt="Demo1">
+  <img src="./frontend/assets/images/Demo2.png" alt="Demo1">
 </p>
 
 - Visualización de estados de procesamiento
@@ -44,7 +44,7 @@ graph TD
 ### Interfaz de Asistencia Cognitiva
 
 <p align="center">
-  <img src="./assets/images/Demo3.png" alt="Demo1">
+  <img src="./frontend/assets/images/Demo3.png" alt="Demo1">
 </p>
 
 - Sistema conversacional avanzado
