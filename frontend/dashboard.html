@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - MiltonAI</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <div class="logo">
+                <i class="fas fa-file-invoice"></i>
+                <span>MiltonAI</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">Procesar</a>
+                <a href="dashboard.html" class="active">Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-header">
+            <h1>Dashboard de Facturas</h1>
+            <div class="date-filter">
+                <input type="month" id="monthFilter">
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-file-invoice"></i>
+                <div class="stat-info">
+                    <h3>Total Facturas</h3>
+                    <p id="totalInvoices">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-money-bill-wave"></i>
+                <div class="stat-info">
+                    <h3>Importe Total</h3>
+                    <p id="totalAmount">S/ 0.00</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <div class="stat-info">
+                    <h3>Promedio por Factura</h3>
+                    <p id="averageAmount">S/ 0.00</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-building"></i>
+                <div class="stat-info">
+                    <h3>Total Proveedores</h3>
+                    <p id="totalProviders">0</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3>Facturas por Mes</h3>
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Top Proveedores</h3>
+                <canvas id="providersChart"></canvas>
+            </div>
+        </div>
+
+        <div class="recent-invoices">
+            <div class="card-header">
+                <h2>Facturas Recientes</h2>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInvoices" placeholder="Buscar facturas...">
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>N° Factura</th>
+                            <th>Proveedor</th>
+                            <th>RUC</th>
+                            <th>Importe</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoicesTableBody">
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination">
+                <button id="prevPage" class="btn-page"><i class="fas fa-chevron-left"></i></button>
+                <span id="currentPage">Página 1 de 1</span>
+                <button id="nextPage" class="btn-page"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

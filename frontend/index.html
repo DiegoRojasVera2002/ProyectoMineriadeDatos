@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiltonAI - Procesador Inteligente de Facturas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --primary-dark: #357abd;
+            --success-color: #4CAF50;
+            --success-dark: #45a049;
+            --error-color: #f44336;
+            --text-color: #333;
+            --text-light: #666;
+            --background-color: #f5f7fa;
+            --border-color: #e0e0e0;
+            --shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: white;
+            box-shadow: var(--shadow);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .navbar-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .logo i {
+            font-size: 1.8rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 80px auto 2rem;
+            padding: 0 2rem;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            color: var(--text-color);
+            font-size: 1.25rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            background: #f8f9fa;
+            border-color: var(--primary-dark);
+        }
+
+        .upload-area.dragover {
+            background: #e3f2fd;
+            border-color: var(--primary-dark);
+        }
+
+        .upload-area i {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h3 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-area p {
+            color: var(--text-light);
+            margin: 0.5rem 0;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s ease;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .invoices-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        .invoices-table th,
+        .invoices-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .invoices-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: var(--text-color);
+            white-space: nowrap;
+        }
+
+        .invoices-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .audio-btn {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .audio-btn:hover {
+            background: var(--success-dark);
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .status-badge.success {
+            background: #e3fcef;
+            color: #0a6c3b;
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        .alert {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1001;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+        }
+
+        .alert-success {
+            background: #e3fcef;
+            color: #0a6c3b;
+            border-left: 4px solid #0a6c3b;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #dc2626;
+            border-left: 4px solid #dc2626;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .card-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        .floating-chat-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+.floating-chat-button:hover {
+    transform: scale(1.1);
+    background-color: #357abd;
+}
+
+.chat-window {
+    position: fixed;
+    bottom: 100px;
+    right: 30px;
+    width: 380px;
+    height: 500px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    display: none;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.chat-header {
+    background: #4a90e2;
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.close-chat {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 80%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin-bottom: 5px;
+}
+
+.message.user {
+    background: #4a90e2;
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 5px;
+}
+
+.message.bot {
+    background: #f0f2f5;
+    color: #333;
+    align-self: flex-start;
+    border-bottom-left-radius: 5px;
+}
+
+.chat-input {
+    padding: 15px;
+    border-top: 1px solid #eee;
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chat-input button {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.typing-indicator {
+    display: flex;
+    gap: 3px;
+    padding: 10px;
+    background: #f0f2f5;
+    border-radius: 10px;
+    width: fit-content;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #90a4ae;
+    border-radius: 50%;
+    animation: typing 1s infinite ease-in-out;
+}
+.navbar {
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    padding: 0.5rem 0;
+}
+
+.navbar-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: absolute; /* O usa 'fixed' si quieres que permanezca en la misma posición al hacer scroll */
+    top: 1; /* Alinea en la parte superior */
+    right: 0; /* Alinea en la parte derecha */
+    margin: 1rem; /* Espaciado opcional desde los bordes */
+}
+
+.nav-logo {
+    height: 50px; /* Ajusta este valor según el tamaño que desees */
+    width: auto;
+    object-fit: contain;
+}
+
+.btn-chat {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-chat:hover {
+    background: var(--primary-dark);
+}
+
+/* Asegurarse de que la imagen no se vea demasiado grande en móviles */
+@media (max-width: 768px) {
+    .nav-logo {
+        height: 40px;
+    }
+    
+    .navbar-content {
+        padding: 0 1rem;
+    }
+    
+    .nav-right {
+        gap: 1rem;
+    }
+}
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.typing-dot:nth-child(1) { animation-delay: 0.2s; }
+.typing-dot:nth-child(2) { animation-delay: 0.3s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="/" class="logo">
+                <i class="fas fa-file-invoice"></i>
+                <span>MiltonAI</span>
+            </a>
+        </div>
+        <div class="nav-right">
+            <img src="assets/milton.png" alt="Milton Logo" class="nav-logo">
+        </div>
+    </nav>
+    <button id="chatButton" class="floating-chat-button">
+        <i class="fas fa-comments"></i>
+    </button>
+    
+    <div id="chatWindow" class="chat-window">
+        <div class="chat-header">
+            <h3><i class="fas fa-robot"></i> Asistente MiltonAI</h3>
+            <button class="close-chat" onclick="toggleChat()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                Hola, soy tu asistente de facturas. ¿En qué puedo ayudarte?
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="messageInput" placeholder="Escribe tu pregunta aquí..." 
+                   onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+    <div class="container">
+        <div class="main-content">
+            <!-- Upload Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Procesar Nueva Factura</h2>
+                </div>
+                <div class="card-body">
+                    <div class="upload-area" id="dropZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <h3>Arrastra y suelta tu factura aquí</h3>
+                        <p>o</p>
+                        <input type="file" id="fileInput" class="file-input" accept=".pdf">
+                        <button class="btn" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-file-pdf"></i>
+                            Seleccionar Archivo
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Card -->
+            <!-- Results Card -->
+<div class="card">
+    <div class="card-header">
+        <h2>Facturas Procesadas</h2>
+        <button onclick="clearInvoices()" class="btn btn-danger" style="background-color: #dc3545;">
+            <i class="fas fa-trash"></i>
+            Limpiar Todo
+        </button>
+    </div>
+    <div class="card-body">
+        <div class="table-container">
+            <table class="invoices-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>N° Factura</th>
+                        <th>Proveedor</th>
+                        <th>RUC</th>
+                        <th>Total</th>
+                        <th>Resumen</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody"></tbody>
+            </table>
+        </div>
+        <div id="noDataMessage" style="display: none; text-align: center; padding: 2rem; color: #666;">
+            No hay facturas procesadas
+        </div>
+    </div>
+</div>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Procesando factura...</p>
+    </div>
+
+    <audio id="audioPlayer" style="display: none;"></audio>
+
+    <script>
+        let processedInvoices = [];
+        let currentAudioBtn = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeUploadHandlers();
+            loadSavedInvoices();
+        });
+        function loadSavedInvoices() {
+        const savedInvoices = localStorage.getItem('processedInvoices');
+        if (savedInvoices) {
+            processedInvoices = JSON.parse(savedInvoices);
+            processedInvoices.forEach(invoice => {
+                addInvoiceToTable(invoice, false); // false indica que no debe guardarse nuevamente
+            });
+        }
+    }
+    function saveInvoices() {
+        localStorage.setItem('processedInvoices', JSON.stringify(processedInvoices));
+    }
+        function initializeUploadHandlers() {
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            dropZone.addEventListener('drop', handleDrop, false);
+            fileInput.addEventListener('change', handleFiles, false);
+        }
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            document.getElementById('dropZone').classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            document.getElementById('dropZone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            handleFiles({ target: { files: dt.files } });
+        }
+
+        async function handleFiles(e) {
+        const files = Array.from(e.target.files);
+        
+        if (files.length === 0) return;
+        
+        if (!files[0].type.includes('pdf')) {
+            showError('Por favor seleccione un archivo PDF');
+            return;
+        }
+
+        showLoading(true);
+        const formData = new FormData();
+        formData.append('file', files[0]);
+
+        try {
+            const response = await fetch('http://127.0.0.1:3090/process_invoice', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+            if (result.status === 'success') {
+                addInvoiceToTable(result, true); // true indica que debe guardarse
+                showSuccess('Factura procesada exitosamente');
+                document.querySelector('.card:last-child').style.display = 'block'; // Asegurar que la tabla esté visible
+            } else {
+                throw new Error(result.error || 'Error procesando la factura');
+            }
+        } catch (error) {
+            showError(error.message);
+        } finally {
+            showLoading(false);
+            resetFileInput();
+        }
+    }
+
+    function addInvoiceToTable(invoice, shouldSave = true) {
+        const tableBody = document.getElementById('invoicesTableBody');
+        const tableContainer = document.querySelector('.card:last-child');
+        
+        // Asegurar que la tabla sea visible
+        tableContainer.style.display = 'block';
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${invoice.data.Fecha_emision}</td>
+            <td>${invoice.data.Nro_factura}</td>
+            <td>${invoice.data.Nombre_proveedor}</td>
+            <td>${invoice.data.RUC_proveedor}</td>
+            <td>${formatMoney(invoice.data.Importe_Total)}</td>
+            <td>
+                <button onclick="playAudio('${invoice.audio_file}', this)" class="audio-btn">
+                    <i class="fas fa-play"></i>
+                    <span>Reproducir</span>
+                </button>
+            </td>
+            <td>
+                <span class="status-badge success">
+                    <i class="fas fa-check"></i> Procesado
+                </span>
+            </td>
+        `;
+
+        tableBody.insertBefore(row, tableBody.firstChild);
+        
+        if (shouldSave) {
+            processedInvoices.unshift(invoice);
+            saveInvoices();
+        }
+    }
+    function clearInvoices() {
+        localStorage.removeItem('processedInvoices');
+        processedInvoices = [];
+        document.getElementById('invoicesTableBody').innerHTML = '';
+    }
+
+        function playAudio(audioFile, button) {
+            const audioPlayer = document.getElementById('audioPlayer');
+            
+            if (currentAudioBtn && currentAudioBtn !== button) {
+                resetAudioButton(currentAudioBtn);
+            }
+
+            if (audioPlayer.src && !audioPlayer.paused && currentAudioBtn === button) {
+                audioPlayer.pause();
+                resetAudioButton(button);
+            } else {
+                audioPlayer.src = `http://127.0.0.1:3090/audio/${audioFile}`;
+                audioPlayer.play();
+                button.innerHTML = `
+                    <i class="fas fa-pause"></i>
+                    <span>Pausar</span>
+                `;
+                currentAudioBtn = button;
+            }
+
+            audioPlayer.onended = () => resetAudioButton(button);
+        }
+
+        function resetAudioButton(button) {
+            if (!button) return;
+            
+            button.innerHTML = `
+                <i class="fas fa-play"></i>
+                <span>Reproducir</span>
+            `;
+            currentAudioBtn = null;
+        }
+
+        function formatMoney(amount) {
+            try {
+                const number = parseFloat(amount);
+                return `S/ ${number.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+            } catch (error) {
+                return 'S/ 0.00';
+            }
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loadingOverlay');
+            if (show) {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        }
+
+        function showSuccess(message) {
+            showNotification(message, 'success');
+        }
+
+        function showError(message) {
+            showNotification(message, 'error');
+        }
+
+        function showNotification(message, type) {
+            // Remover notificaciones existentes
+            const existingAlerts = document.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+
+            // Crear nueva notificación
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            document.body.appendChild(alert);
+
+            // Remover después de 5 segundos
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.style.animation = 'slideOut 0.3s ease';
+                    setTimeout(() => alert.remove(), 300);
+                }
+            }, 5000);
+        }
+
+        // Función para limpiar el input de archivo después de procesar
+        function resetFileInput() {
+            const fileInput = document.getElementById('fileInput');
+            fileInput.value = '';
+        }
+
+        // Función para verificar el tipo de archivo
+        function isValidPDF(file) {
+            return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        }
+
+        // Agregar más funcionalidades
+        document.addEventListener('keydown', function(e) {
+            // Cerrar alertas con ESC
+            if (e.key === 'Escape') {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => alert.remove());
+            }
+        });
+
+        // Manejar errores de reproducción de audio
+        const audioPlayer = document.getElementById('audioPlayer');
+        audioPlayer.addEventListener('error', function() {
+            showError('Error al reproducir el audio');
+            if (currentAudioBtn) {
+                resetAudioButton(currentAudioBtn);
+            }
+        });
+
+        // Estilo para animación de salida de alertas
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+
+        let isTyping = false;
+
+function toggleChat() {
+    const chatWindow = document.getElementById('chatWindow');
+    chatWindow.style.display = chatWindow.style.display === 'none' ? 'flex' : 'none';
+}
+
+document.getElementById('chatButton').addEventListener('click', toggleChat);
+
+function handleKeyPress(event) {
+    if (event.key === 'Enter' && !isTyping) {
+        sendMessage();
+    }
+}
+
+function addMessage(text, isUser = false) {
+    const messagesDiv = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+    messageDiv.textContent = text;
+    messagesDiv.appendChild(messageDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const messagesDiv = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.innerHTML = `
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+    `;
+    typingDiv.id = 'typingIndicator';
+    messagesDiv.appendChild(typingDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) {
+        typingIndicator.remove();
+    }
+}
+
+async function sendMessage() {
+    if (isTyping) return;
+
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    addMessage(message, true);
+    input.value = '';
+    
+    showTypingIndicator();
+    isTyping = true;
+
+    try {
+        const response = await fetch('http://127.0.0.1:3090/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                invoices: processedInvoices
+            })
+        });
+
+        const data = await response.json();
+        removeTypingIndicator();
+        
+        if (data.response) {
+            addMessage(data.response);
+        } else {
+            addMessage('Lo siento, hubo un error al procesar tu pregunta.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        removeTypingIndicator();
+        addMessage('Lo siento, ocurrió un error al comunicarse con el servidor.');
+    } finally {
+        isTyping = false;
+    }
+}
+    </script>
+</body>
+</html>
